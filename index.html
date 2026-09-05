@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meteo & Ambiente Albino (Val Seriana)</title>
+    <!-- Google Fonts per un look pulito e moderno -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .dashboard {
+            width: 100%;
+            max-width: 600px;
+            background: #1e293b;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+            border: 1px solid #334155;
+        }
+        h1 {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+            color: #38bdf8;
+        }
+        .subtitle {
+            font-size: 0.85rem;
+            color: #94a3b8;
+            margin-bottom: 25px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .card {
+            background: #0f172a;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid #334155;
+        }
+        .card-title {
+            font-size: 0.8rem;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 8px;
+        }
+        .card-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #f1f5f9;
+        }
+        .alert-card {
+            background: #0f172a;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid #334155;
+            grid-column: span 2;
+        }
+        .status-ok {
+            color: #4ade80;
+            font-weight: 600;
+        }
+        .status-critico {
+            color: #f87171;
+            font-weight: 600;
+        }
+        .footer {
+            margin-top: 25px;
+            text-align: center;
+            font-size: 0.75rem;
+            color: #64748b;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard">
+        <h1>Albino (BG) • Stazione Meteo</h1>
+        <div class="subtitle">Monitoraggio microclimatico e ambientale in Val Seriana</div>
+
+        <div class="grid">
+            <div class="card">
+                <div class="card-title">Temperatura</div>
+                <div class="card-value" id="temp">-- °C</div>
+            </div>
+            <div class="card">
+                <div class="card-title">Umidità Relativa</div>
+                <div class="card-value" id="humidity">-- %</div>
+            </div>
+            <div class="card">
+                <div class="card-title">Pressione (SLM)</div>
+                <div class="card-value" id="pressure">-- hPa</div>
+            </div>
+            <div class="card">
+                <div class="card-title">Vento</div>
+                <div class="card-value" id="wind">-- km/h</div>
+            </div>
+            <div class="alert-card">
+                <div class="card-title">Qualità dell'Aria / Analisi Ambientale</div>
+                <div class="card-value" id="air-quality" style="font-size: 1.1rem; margin-top: 5px;">Caricamento dati in corso...</div>
+            </div>
+        </div>
+
+        <div class="footer" id="timestamp">Ultimo aggiornamento: In attesa...</div>
+    </div>
+
+    <script>
+        // Funzione per caricare i dati dal file JSON generato da Python
+        async function caricaDatiMeteo() {
+            try {
+                // Legge il file ultimo_stato.json salvato dallo script Python
+                const response = await fetch('ultimo_stato.json');
+                if (!response.ok) throw new Error('File dati non trovato');
+                
+                const data = await response.json();
+
+                // Aggiorna gli elementi HTML con i valori reali
+                document.getElementById('temp').innerText = data.temperatura_c + " °C";
+                document.getElementById('humidity').innerText = data.umidita_pct + " %";
+                document.getElementById('pressure').innerText = data.pressione_hpa + " hPa";
+                document.getElementById('wind').innerText = data.vento_kmh + " km/h";
+                
+                const airElement = document.getElementById('air-quality');
+                airElement.innerText = data.qualita_aria_stimata;
+                
+                if(data.qualita_aria_stimata.includes("CRITICO")) {
+                    airElement.className = "status-critico";
+                } else {
+                    airElement.className = "status-ok";
+                }
+
+                document.getElementById('timestamp').innerText = "Ultimo aggiornamento da Ecowitt: " + data.timestamp;
+
+            } catch (error) {
+                console.error("Errore nel caricamento:", error);
+                document.getElementById('air-quality').innerText = "Impossibile leggere il file dei dati. Esegui prima lo script Python!";
+            }
+        }
+
+        // Carica i dati appena si apre la pagina
+        caricaDatiMeteo();
+    </script>
+
+</body>
+</html>
