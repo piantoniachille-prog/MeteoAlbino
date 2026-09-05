@@ -1,0 +1,37 @@
+name: Aggiorna Meteo Albino
+
+on:
+  schedule:
+    - cron: '0 * * * *' # Esegue lo script automaticamente ogni ora
+  workflow_dispatch: # Permette di avviarlo a mano quando vuoi
+
+permissions:
+  contents: write
+
+jobs:
+  aggiorna:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Scarica il codice del repository
+        uses: actions/checkout@v4
+
+      - name: Configura Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Installa le librerie (Requests)
+        run: pip install requests
+
+      - name: Esegui lo script meteo
+        env:
+          ECOWITT_APP_KEY: ${{ secrets.ECOWITT_APP_KEY }}
+          ECOWITT_API_KEY: ${{ secrets.ECOWITT_API_KEY }}
+        run: python bollettino.py
+
+      - name: Salva e pubblica le modifiche sul sito
+        run: |
+          git config --global user.name "Robottino Meteo"
+          git config --global user.email "bot@meteoalbino.local"
+          git add ultimo_stato.json storico_albanello.jsonl
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Aggiornamento automatico dati meteo 🤖" && git push)
