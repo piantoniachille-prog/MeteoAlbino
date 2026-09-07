@@ -1,8 +1,8 @@
 {
-    "timestamp": "2026-09-07 18:03:23",
-    "temperatura_c": 30.5,
-    "umidita_pct": "48",
-    "pressione_hpa": 1014.6,
-    "vento_kmh": 0.0,
+    "timestamp": "2026-09-07 19:03:07",
+    "temperatura_c": 28.7,
+    "umidita_pct": "54",
+    "pressione_hpa": 1014.2,
+    "vento_kmh": 0.9,
     "qualita_aria_stimata": "BUONA / NORMALE"
 }
