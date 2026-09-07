@@ -121,7 +121,7 @@
         async function caricaDatiMeteo() {
             try {
                 // Legge il file ultimo_stato.json salvato dallo script Python
-                const response = await fetch('ultimo_stato.json');
+                const response = await fetch('ultimo_stato.json?t=' + new Date().getTime());
                 if (!response.ok) throw new Error('File dati non trovato');
                 
                 const data = await response.json();
