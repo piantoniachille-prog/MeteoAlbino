@@ -1,9 +1,8 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 import json
 import os
 import requests
 
-# --- 1. CREDENZIALI ECOWITT ---
 application_key = "DF17C440A062FE7D1DC11419C07C5289"
 api_key = "573239e6-94f0-4e5c-a2bf-140661231809"
 mac_address = "24:4C:AB:74:89:71"
@@ -16,70 +15,57 @@ params_ecowitt = {
     "call_back": "all",
 }
 
-
 def raccogli_dati_meteo():
-  try:
-    response = requests.get(url_ecowitt, params=params_ecowitt, timeout=10)
-    if response.status_code == 200:
-      risultato = response.json()
-      if risultato.get("code") == 0:
-        data = risultato.get("data", {})
+    try:
+        response = requests.get(url_ecowitt, params=params_ecowitt, timeout=10)
+        if response.status_code == 200:
+            risultato = response.json()
+            if risultato.get("code") == 0:
+                data = risultato.get("data", {})
+                temp_raw = float(data.get("outdoor", {}).get("temperature", {}).get("value", 0))
+                humidity = data.get("outdoor", {}).get("humidity", {}).get("value", 0)
+                pressure_raw = float(data.get("pressure", {}).get("relative", {}).get("value", 0))
+                wind_val = data.get("wind", {}).get("wind_speed", {}).get("value")
+                wind_speed = float(wind_val) if wind_val is not None else 0.0
 
-        # Estrazione e conversione sicura
-        temp_raw = float(
-            data.get("outdoor", {}).get("temperature", {}).get("value", 0)
-        )
-        humidity = data.get("outdoor", {}).get("humidity", {}).get("value", 0)
-        pressure_raw = float(
-            data.get("pressure", {}).get("relative", {}).get("value", 0)
-        )
-        wind_val = data.get("wind", {}).get("wind_speed", {}).get("value")
-        wind_speed = float(wind_val) if wind_val is not None else 0.0
-
-        temp_celsius = (temp_raw - 32) * 5 / 9
-        pressure_hpa = pressure_raw * 33.8639
-     # Orario italiano calcolato in sicurezza
+                temp_celsius = (temp_raw - 32) * 5 / 9
+                pressure_hpa = pressure_raw * 33.8639
+                
                 ora_italiana = datetime.utcnow() + timedelta(hours=2)
                 timestamp_str = ora_italiana.strftime("%Y-%m-%d %H:%M:%S")
-        # Analisi ecologica di valle
-        if pressure_hpa > 1020 and wind_speed < 1.5:
-          indice_aria = "CRITICO (Ristagno potenziale nei bassi strati)"
-        elif pressure_hpa < 1010 or wind_speed > 3.0:
-          indice_aria = "OTTIMA (Buon rimescolamento e ventilazione)"
-        else:
-          indice_aria = "BUONA / NORMALE"
 
-        # Struttura dati pronta per un sito web (JSON)
-        rilevazione = {
-            "timestamp": timestamp,
-            "temperatura_c": round(temp_celsius, 1),
-            "umidita_pct": humidity,
-            "pressione_hpa": round(pressure_hpa, 1),
-            "vento_kmh": round(wind_speed, 1),
-            "qualita_aria_stimata": indice_aria,
-        }
+                if pressure_hpa > 1020 and wind_speed < 1.5:
+                    indice_aria = "CRITICO (Ristagno potenziale nei bassi strati)"
+                elif pressure_hpa < 1010 or wind_speed > 3.0:
+                    indice_aria = "OTTIMA (Buon rimescolamento e ventilazione)"
+                else:
+                    indice_aria = "BUONA / NORMALE"
 
-        return rilevazione
-  except Exception as e:
-    print(f"Errore di connessione: {e}")
-  return None
+                rilevazione = {
+                    "timestamp": timestamp_str,
+                    "temperatura_c": round(temp_celsius, 1),
+                    "umidita_pct": humidity,
+                    "pressione_hpa": round(pressure_hpa, 1),
+                    "vento_kmh": round(wind_speed, 1),
+                    "qualita_aria_stimata": indice_aria,
+                }
+                return rilevazione
+    except Exception as e:
+        print(f"Errore di connessione: {e}")
+    return None
 
-
-# Esecuzione del raccoglitore
 dati_correnti = raccogli_dati_meteo()
 
 if dati_correnti:
-  print("Dati rilevati con successo:")
-  print(json.dumps(dati_correnti, indent=4, ensure_ascii=False))
+    print("Dati rilevati con successo:")
+    print(json.dumps(dati_correnti, indent=4, ensure_ascii=False))
 
-  # Salvataggio in un file JSON "ultimo_stato.json" (il file che il sito web leggerà)
-  with open("ultimo_stato.json", "w", encoding="utf-8") as f:
-    json.dump(dati_correnti, f, indent=4, ensure_ascii=False)
+    with open("ultimo_stato.json", "w", encoding="utf-8") as f:
+        json.dump(dati_correnti, f, indent=4, ensure_ascii=False)
 
-  # Salvataggio storico in append
-  with open("storico_albanello.jsonl", "a", encoding="utf-8") as f:
-    f.write(json.dumps(dati_correnti, ensure_ascii=False) + "\n")
+    with open("storico_albanello.jsonl", "a", encoding="utf-8") as f:
+        f.write(json.dumps(dati_correnti, ensure_ascii=False) + "\n")
 
-  print("[OK] File aggiornati per la pubblicazione web.")
+    print("[OK] File aggiornati per la pubblicazione web.")
 else:
-  print("Impossibile recuperare i dati dalla centralina.")
+    print("Impossibile recuperare i dati dalla centralina.")
