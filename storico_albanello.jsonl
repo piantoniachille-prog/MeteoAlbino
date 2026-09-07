@@ -44,3 +44,4 @@
 {"timestamp": "2026-09-07 15:04:04", "temperatura_c": 31.0, "umidita_pct": "45", "pressione_hpa": 1016.3, "vento_kmh": 1.1, "qualita_aria_stimata": "BUONA / NORMALE"}
 {"timestamp": "2026-09-07 16:03:32", "temperatura_c": 30.8, "umidita_pct": "47", "pressione_hpa": 1015.2, "vento_kmh": 2.5, "qualita_aria_stimata": "BUONA / NORMALE"}
 {"timestamp": "2026-09-07 17:03:12", "temperatura_c": 30.7, "umidita_pct": "47", "pressione_hpa": 1014.6, "vento_kmh": 0.5, "qualita_aria_stimata": "BUONA / NORMALE"}
+{"timestamp": "2026-09-07 18:03:23", "temperatura_c": 30.5, "umidita_pct": "48", "pressione_hpa": 1014.6, "vento_kmh": 0.0, "qualita_aria_stimata": "BUONA / NORMALE"}
