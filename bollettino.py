@@ -38,9 +38,9 @@ def raccogli_dati_meteo():
 
         temp_celsius = (temp_raw - 32) * 5 / 9
         pressure_hpa = pressure_raw * 33.8639
-       # Ora italiana precisa (UTC + 2 ore per l'ora legale)
-ora_italiana = datetime.utcnow() + timedelta(hours=2)
-timestamp_str = ora_italiana.strftime("%Y-%m-%d %H:%M:%S")
+     # Orario italiano calcolato in sicurezza
+                ora_italiana = datetime.utcnow() + timedelta(hours=2)
+                timestamp_str = ora_italiana.strftime("%Y-%m-%d %H:%M:%S")
         # Analisi ecologica di valle
         if pressure_hpa > 1020 and wind_speed < 1.5:
           indice_aria = "CRITICO (Ristagno potenziale nei bassi strati)"
