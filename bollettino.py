@@ -1,81 +1,199 @@
-from datetime import datetime, timedelta
-import json
-import os
-import requests
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meteo & Ambiente Albino (Val Seriana)</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0b1329;
+            --card-bg: rgba(255, 255, 255, 0.04);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent-blue: #38bdf8;
+            --accent-glow: rgba(56, 189, 248, 0.15);
+        }
 
-application_key = "DF17C440A062FE7D1DC11419C07C5289"
-api_key = "573239e6-94f0-4e5c-a2bf-140661231809"
-mac_address = "24:4C:AB:74:89:71"
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(14, 165, 233, 0.12) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(99, 102, 241, 0.08) 0%, transparent 40%);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
 
-url_ecowitt = "https://api.ecowitt.net/api/v3/device/real_time"
-params_ecowitt = {
-    "application_key": application_key,
-    "api_key": api_key,
-    "mac": mac_address,
-    "call_back": "all",
-}
+        .dashboard {
+            width: 100%;
+            max-width: 700px;
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            padding: 35px;
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--card-border);
+        }
 
-def raccogli_dati_meteo():
-    try:
-        response = requests.get(url_ecowitt, params=params_ecowitt, timeout=10)
-        if response.status_code == 200:
-            risultato = response.json()
-            if risultato.get("code") == 0:
-                data = risultato.get("data", {})
+        h1 {
+            font-size: 1.6rem;
+            margin-bottom: 5px;
+            color: var(--text-main);
+            font-weight: 700;
+        }
+
+        h1 span {
+            color: var(--accent-blue);
+        }
+
+        .subtitle {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 30px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.02);
+            padding: 20px;
+            border-radius: 16px;
+            border: 1px solid var(--card-border);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(56, 189, 248, 0.3);
+            box-shadow: 0 10px 30px -10px var(--accent-glow);
+        }
+
+        .card-title {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .card-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .alert-card {
+            background: rgba(255, 255, 255, 0.02);
+            padding: 20px;
+            border-radius: 16px;
+            border: 1px solid var(--card-border);
+            grid-column: span 2;
+        }
+
+        .status-ok {
+            color: #34d399;
+            font-weight: 600;
+        }
+
+        .status-critico {
+            color: #f87171;
+            font-weight: 600;
+        }
+
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            border-top: 1px solid var(--card-border);
+            padding-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard">
+        <h1>Albino (BG) • <span>Stazione Meteo</span></h1>
+        <div class="subtitle">Monitoraggio microclimatico e ambientale in Val Seriana</div>
+
+        <div class="grid">
+            <div class="card">
+                <div class="card-title">Temperatura</div>
+                <div class="card-value" id="temp">-- °C</div>
+            </div>
+            <div class="card">
+                <div class="card-title">Umidità Relativa</div>
+                <div class="card-value" id="humidity">-- %</div>
+            </div>
+            <div class="card">
+                <div class="card-title">Pressione (SLM)</div>
+                <div class="card-value" id="pressure">-- hPa</div>
+            </div>
+            <div class="card">
+                <div class="card-title">Vento</div>
+                <div class="card-value" id="wind">-- km/h</div>
+            </div>
+            <div class="card" style="grid-column: span 2;">
+                <div class="card-title">Precipitazioni (Giornaliere)</div>
+                <div class="card-value" id="rain">-- mm</div>
+            </div>
+            <div class="alert-card">
+                <div class="card-title">Qualità dell'Aria / Analisi Ambientale</div>
+                <div class="card-value" id="air-quality" style="font-size: 1.05rem; margin-top: 5px;">Caricamento dati in corso...</div>
+            </div>
+        </div>
+
+        <div class="footer" id="timestamp">Ultimo aggiornamento: In attesa...</div>
+    </div>
+
+    <script>
+        async function caricaDatiMeteo() {
+            try {
+                const response = await fetch('ultimo_stato.json?t=' + new Date().getTime());
+                if (!response.ok) throw new Error('File dati non trovato');
                 
-                # Estrazioni base
-                temp_raw = float(data.get("outdoor", {}).get("temperature", {}).get("value", 0))
-                humidity = data.get("outdoor", {}).get("humidity", {}).get("value", 0)
-                pressure_raw = float(data.get("pressure", {}).get("relative", {}).get("value", 0))
-                wind_val = data.get("wind", {}).get("wind_speed", {}).get("value")
-                wind_speed = float(wind_val) if wind_val is not None else 0.0
+                const data = await response.json();
 
-                # Estrazione precipitazioni (gestione sicura del blocco rain)
-                rain_data = data.get("rainfall", {})
-                # Di solito Ecowitt fornisce il dato giornaliero o l'intensità (hourly/daily)
-                rain_val = rain_data.get("daily", {}).get("value", "0")
-                rain_mm = float(rain_val) if rain_val is not None else 0.0
-
-                temp_celsius = (temp_raw - 32) * 5 / 9
-                pressure_hpa = pressure_raw * 33.8639
+                document.getElementById('temp').innerText = data.temperatura_c + " °C";
+                document.getElementById('humidity').innerText = data.umidita_pct + " %";
+                document.getElementById('pressure').innerText = data.pressione_hpa + " hPa";
+                document.getElementById('wind').innerText = data.vento_kmh + " km/h";
+                document.getElementById('rain').innerText = (data.pioggia_mm !== undefined ? data.pioggia_mm : 0.0) + " mm";
                 
-                ora_italiana = datetime.utcnow() + timedelta(hours=2)
-                timestamp_str = ora_italiana.strftime("%Y-%m-%d %H:%M:%S")
-
-                # Analisi ecologica di valle
-                if pressure_hpa > 1020 and wind_speed < 1.5:
-                    indice_aria = "CRITICO (Ristagno potenziale nei bassi strati)"
-                elif pressure_hpa < 1010 or wind_speed > 3.0:
-                    indice_aria = "OTTIMA (Buon rimescolamento e ventilazione)"
-                else:
-                    indice_aria = "BUONA / NORMALE"
-
-                rilevazione = {
-                    "timestamp": timestamp_str,
-                    "temperatura_c": round(temp_celsius, 1),
-                    "umidita_pct": humidity,
-                    "pressione_hpa": round(pressure_hpa, 1),
-                    "vento_kmh": round(wind_speed, 1),
-                    "pioggia_mm": round(rain_mm, 1),
-                    "qualita_aria_stimata": indice_aria,
+                const airElement = document.getElementById('air-quality');
+                airElement.innerText = data.qualita_aria_stimata;
+                
+                if(data.qualita_aria_stimata.includes("CRITICO")) {
+                    airElement.className = "status-critico";
+                } else {
+                    airElement.className = "status-ok";
                 }
-                return rilevazione
-    except Exception as e:
-        print(f"Errore di connessione: {e}")
-    return None
 
-dati_correnti = raccogli_dati_meteo()
+                document.getElementById('timestamp').innerText = "Ultimo aggiornamento da Ecowitt: " + data.timestamp;
 
-if dati_correnti:
-    print("Dati rilevati con successo:")
-    print(json.dumps(dati_correnti, indent=4, ensure_ascii=False))
+            } catch (error) {
+                console.error("Errore nel caricamento:", error);
+                document.getElementById('air-quality').innerText = "Impossibile leggere il file dei dati.";
+            }
+        }
 
-    with open("ultimo_stato.json", "w", encoding="utf-8") as f:
-        json.dump(dati_correnti, f, indent=4, ensure_ascii=False)
+        caricaDatiMeteo();
+    </script>
 
-    with open("storico_albanello.jsonl", "a", encoding="utf-8") as f:
-        f.write(json.dumps(dati_correnti, ensure_ascii=False) + "\n")
-
-    print("[OK] File aggiornati per la pubblicazione web.")
-else:
-    print("Impossibile recuperare i dati dalla centralina.")
+</body>
+</html>
