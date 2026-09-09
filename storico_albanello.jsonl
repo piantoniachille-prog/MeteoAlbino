@@ -76,3 +76,4 @@
 {"timestamp": "2026-09-08 23:02:59", "temperatura_c": 25.0, "umidita_pct": "66", "pressione_hpa": 1007.1, "vento_kmh": 0.2, "qualita_aria_stimata": "OTTIMA (Buon rimescolamento e ventilazione)"}
 {"timestamp": "2026-09-09 02:05:07", "temperatura_c": 24.5, "umidita_pct": "67", "pressione_hpa": 1007.1, "vento_kmh": 1.8, "qualita_aria_stimata": "OTTIMA (Buon rimescolamento e ventilazione)"}
 {"timestamp": "2026-09-09 03:03:35", "temperatura_c": 23.9, "umidita_pct": "60", "pressione_hpa": 1006.8, "vento_kmh": 0.9, "qualita_aria_stimata": "OTTIMA (Buon rimescolamento e ventilazione)"}
+{"timestamp": "2026-09-09 04:03:34", "temperatura_c": 23.9, "umidita_pct": "59", "pressione_hpa": 1006.1, "vento_kmh": 3.6, "qualita_aria_stimata": "OTTIMA (Buon rimescolamento e ventilazione)"}
