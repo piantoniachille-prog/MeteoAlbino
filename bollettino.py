@@ -150,7 +150,7 @@
             </div>
             <div class="card" style="grid-column: span 2;">
                 <div class="card-title">Precipitazioni (Giornaliere)</div>
-                <div class="card-value" id="rain">-- mm</div>
+                <div class="card-value" id="daily">-- mm</div>
             </div>
             <div class="alert-card">
                 <div class="card-title">Qualità dell'Aria / Analisi Ambientale</div>
