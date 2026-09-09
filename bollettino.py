@@ -22,11 +22,19 @@ def raccogli_dati_meteo():
             risultato = response.json()
             if risultato.get("code") == 0:
                 data = risultato.get("data", {})
+                
+                # Estrazioni base
                 temp_raw = float(data.get("outdoor", {}).get("temperature", {}).get("value", 0))
                 humidity = data.get("outdoor", {}).get("humidity", {}).get("value", 0)
                 pressure_raw = float(data.get("pressure", {}).get("relative", {}).get("value", 0))
                 wind_val = data.get("wind", {}).get("wind_speed", {}).get("value")
                 wind_speed = float(wind_val) if wind_val is not None else 0.0
+
+                # Estrazione precipitazioni (gestione sicura del blocco rain)
+                rain_data = data.get("rainfall", {})
+                # Di solito Ecowitt fornisce il dato giornaliero o l'intensità (hourly/daily)
+                rain_val = rain_data.get("daily", {}).get("value", "0")
+                rain_mm = float(rain_val) if rain_val is not None else 0.0
 
                 temp_celsius = (temp_raw - 32) * 5 / 9
                 pressure_hpa = pressure_raw * 33.8639
@@ -34,6 +42,7 @@ def raccogli_dati_meteo():
                 ora_italiana = datetime.utcnow() + timedelta(hours=2)
                 timestamp_str = ora_italiana.strftime("%Y-%m-%d %H:%M:%S")
 
+                # Analisi ecologica di valle
                 if pressure_hpa > 1020 and wind_speed < 1.5:
                     indice_aria = "CRITICO (Ristagno potenziale nei bassi strati)"
                 elif pressure_hpa < 1010 or wind_speed > 3.0:
@@ -47,6 +56,7 @@ def raccogli_dati_meteo():
                     "umidita_pct": humidity,
                     "pressione_hpa": round(pressure_hpa, 1),
                     "vento_kmh": round(wind_speed, 1),
+                    "pioggia_mm": round(rain_mm, 1),
                     "qualita_aria_stimata": indice_aria,
                 }
                 return rilevazione
