@@ -1,37 +1,55 @@
-name: Aggiorna Meteo Albino
+name: Aggiornamento Stazione Meteo
 
+# Regola quando viene eseguito il flusso di lavoro
 on:
   schedule:
-    - cron: '0 * * * *' # Esegue lo script automaticamente ogni ora
-  workflow_dispatch: # Permette di avviarlo a mano quando vuoi
+    # Esegue lo script ogni 30 minuti
+    - cron: '*/30 * * * *'
+  # Permette di lanciare manualmente il workflow dalla scheda "Actions" di GitHub
+  workflow_dispatch:
 
+# Permessi di scrittura per consentire al bot di fare il push nel repository
 permissions:
   contents: write
 
 jobs:
-  aggiorna:
+  update-weather-data:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Scarica il codice del repository
+      # 1. Scarica il codice del repository
+      - name: Checkout del Repository
         uses: actions/checkout@v4
 
+      # 2. Configura l'ambiente Python
       - name: Configura Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
 
-      - name: Installa le librerie (Requests)
-        run: pip install requests
+      # 3. Installa la libreria requests
+      - name: Installa Dipendenze
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests
 
-      - name: Esegui lo script meteo
-        env:
-          ECOWITT_APP_KEY: ${{ secrets.ECOWITT_APP_KEY }}
-          ECOWITT_API_KEY: ${{ secrets.ECOWITT_API_KEY }}
+      # 4. Esegue lo script Python che recupera i dati da Ecowitt
+      - name: Esegui Script Meteo
         run: python bollettino.py
 
-      - name: Salva e pubblica le modifiche sul sito
+      # 5. Salva e pubblica i file JSON aggiornati nel repository
+      - name: Commit e Push delle Modifiche
         run: |
-          git config --global user.name "Robottino Meteo"
-          git config --global user.email "bot@meteoalbino.local"
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          
+          # Aggiunge i file generati al commit
           git add ultimo_stato.json storico_albanello.jsonl
-          git diff --quiet && git diff --staged --quiet || (git commit -m "Aggiornamento automatico dati meteo 🤖" && git push)
+          
+          # Verifica se ci sono differenze reali prima di committare (evita errori se i dati sono identici)
+          if git diff --staged --quiet; then
+            echo "Nessun cambiamento nei dati meteo."
+          else
+            git commit -m "Auto-update dati meteo [skip ci]"
+            git push
+          fi
