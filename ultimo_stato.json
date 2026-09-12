@@ -1,8 +1,17 @@
 {
-    "timestamp": "2026-09-12 17:33:36",
-    "temperatura_c": 21.9,
-    "umidita_pct": 66,
-    "pressione_hpa": 1016.0,
-    "vento_kmh": 0.4,
-    "qualita_aria_stimata": "BUONA / NORMALE"
+  "schema_version": 2,
+  "timestamp": "2026-09-12T18:16:23Z",
+  "fetched_at": "2026-09-12T18:16:23Z",
+  "source": "Ecowitt",
+  "observed_at": "2026-09-12T18:15:31Z",
+  "temperatura_c": 21.4,
+  "umidita_pct": 69.0,
+  "pressione_hpa": 1016.4,
+  "vento_kmh": 0.0,
+  "field_observed_at": {
+    "temperatura_c": "2026-09-12T18:15:31Z",
+    "umidita_pct": "2026-09-12T18:15:31Z",
+    "pressione_hpa": "2026-09-12T18:15:31Z",
+    "vento_kmh": "2026-09-12T18:15:31Z"
+  }
 }
