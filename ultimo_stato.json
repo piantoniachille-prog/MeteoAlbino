@@ -1,17 +1,17 @@
 {
   "schema_version": 2,
-  "timestamp": "2026-11-19T17:29:33Z",
-  "fetched_at": "2026-11-19T17:29:33Z",
+  "timestamp": "2026-11-19T23:42:50Z",
+  "fetched_at": "2026-11-19T23:42:50Z",
   "source": "Ecowitt",
-  "observed_at": "2026-11-19T17:29:32Z",
-  "temperatura_c": 9.1,
-  "umidita_pct": 90.0,
-  "pressione_hpa": 994.8,
-  "vento_kmh": 0.0,
+  "observed_at": "2026-11-19T23:42:31Z",
+  "temperatura_c": 6.3,
+  "umidita_pct": 85.0,
+  "pressione_hpa": 998.2,
+  "vento_kmh": 4.3,
   "field_observed_at": {
-    "temperatura_c": "2026-11-19T17:29:32Z",
-    "umidita_pct": "2026-11-19T17:29:32Z",
-    "pressione_hpa": "2026-11-19T17:29:32Z",
-    "vento_kmh": "2026-11-19T17:29:32Z"
+    "temperatura_c": "2026-11-19T23:42:31Z",
+    "umidita_pct": "2026-11-19T23:42:31Z",
+    "pressione_hpa": "2026-11-19T23:42:31Z",
+    "vento_kmh": "2026-11-19T23:42:31Z"
   }
 }
